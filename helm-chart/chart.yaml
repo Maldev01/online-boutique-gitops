@@ -3,4 +3,5 @@ name: online-boutique
 description: A simple Helm chart for deploying online-boutique microservices (gitops)
 type: application
 version: 0.1.0
+
 appVersion: "1.0.0"

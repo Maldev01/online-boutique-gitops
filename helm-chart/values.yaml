@@ -41,6 +41,7 @@ services:
     port: 8080
     replicas: 1
 
+
 # Basic resource defaults that templates use (override per-service if you want)
 resources:
   requests:
