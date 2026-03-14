@@ -1,10 +1,11 @@
 # Top-level image configuration your CI will update
 images:
-  repository: "307857433476.dkr.ecr.us-east-1.amazonaws.com"   # CI will set this to <ACCOUNT_ID>.dkr.ecr.<region>.amazonaws.com
-  tag: "${{ github.sha }}"          # CI will set this to the image tag (e.g. github sha)
-
+  repository: "307857433476.dkr.ecr.us-east-1.amazonaws.com" # CI will set this to <ACCOUNT_ID>.dkr.ecr.<region>.amazonaws.com
+  tag: "c098d54b429bc4182915720ed6e63d686dec6b9b" # CI will set this to the image tag (e.g. github sha)
 # Services map: add or remove services as needed; CI will not overwrite this section
+
 # CI only updates images.repository and images.tag so the chart will pull images like:
+
 # <images.repository>/<service>:<images.tag>
 services:
   frontend:
@@ -40,8 +41,6 @@ services:
   shoppingassistantservice:
     port: 8080
     replicas: 1
-
-
 # Basic resource defaults that templates use (override per-service if you want)
 resources:
   requests:
