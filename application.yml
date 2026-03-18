@@ -6,12 +6,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/MalharKt/online-boutique-gitops'
+    repoURL: 'https://github.com/Maldev01/online-boutique-gitops'
     targetRevision: main
-    path: 'helmchart'
+    path: 'helm-chart'
     helm:
       valueFiles:
-        - values.yml
+        - values.yaml
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: online-boutique
