@@ -32,6 +32,7 @@ googleCloudOperations:
   profiler: false
   tracing: false
   metrics: false
+  
     
 seccompProfile:
   enable: false
