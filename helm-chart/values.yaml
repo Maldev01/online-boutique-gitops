@@ -2,7 +2,7 @@ images:
   repository: "307857433476.dkr.ecr.us-east-1.amazonaws.com"
   # Overrides the image tag whose default is the chart appVersion.
 
-  tag: "0982f33c05750d74c3787a9a19e76ca5dc6eb7fb"
+  tag: "latest"
 serviceAccounts:
   # Specifies whether service accounts should be created.
   create: true
@@ -32,7 +32,7 @@ googleCloudOperations:
   profiler: false
   tracing: false
   metrics: false
-  
+
     
 seccompProfile:
   enable: false
