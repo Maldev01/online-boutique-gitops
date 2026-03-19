@@ -2,7 +2,7 @@ images:
   repository: "307857433476.dkr.ecr.us-east-1.amazonaws.com"
   # Overrides the image tag whose default is the chart appVersion.
 
-  tag: "latest"
+  tag: "7b767125fbfccae77f3a295b0c1771c165e5d7f0"
 serviceAccounts:
   # Specifies whether service accounts should be created.
   create: true
@@ -27,13 +27,10 @@ opentelemetryCollector:
   # Specifies the project id for the otel collector. If set as "PROJECT_ID" (default value), an initContainer will automatically retrieve the project id value from the metadata server.
 
   projectId: "PROJECT_ID"
-
 googleCloudOperations:
   profiler: false
   tracing: false
   metrics: false
-
-    
 seccompProfile:
   enable: false
   type: RuntimeDefault
