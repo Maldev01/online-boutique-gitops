@@ -1,4 +1,5 @@
 name: Deploy App
+
 on:
   push:
     branches:
@@ -106,4 +107,3 @@ jobs:
       - name: Get ArgoCD URL
         run: |
           kubectl get svc argocd-server -n argocd
-          
