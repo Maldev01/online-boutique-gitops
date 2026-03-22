@@ -1,11 +1,13 @@
 name: Deploy App
-
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-
+    inputs:
+      service_name:
+        required: false
+        type: string
 permissions:
   id-token: write
   contents: read
