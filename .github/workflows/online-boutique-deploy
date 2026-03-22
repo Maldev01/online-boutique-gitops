@@ -1,0 +1,106 @@
+name: Deploy App
+
+on:
+  push:
+    branches:
+      - main
+  #workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  CLUSTER_NAME: private-eks-cluster
+
+jobs:
+  bootstrap-argocd:
+    runs-on: [self-hosted]
+
+    steps:
+      # 🔹 1. Checkout current repo (optional)
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 🔹 2. Configure AWS credentials (OIDC)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 🔹 3. Configure kubeconfig for EKS
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --region $AWS_REGION \
+            --name $CLUSTER_NAME
+
+      # 🔹 4. Install kubectl
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      # 🔹 5. Install Helm
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      # 🔹 6. Create namespaces
+      - name: Create namespaces
+        run: |
+          kubectl create namespace argocd || true
+          kubectl create namespace online-boutique || true
+
+      # 🔹 7. Add ArgoCD Helm repo
+      - name: Add Helm repo
+        run: |
+          helm repo add argo https://argoproj.github.io/argo-helm
+          helm repo update
+
+      # 🔹 8. Install / Upgrade ArgoCD
+      - name: Install ArgoCD
+        run: |
+          helm upgrade --install argocd argo/argo-cd \
+            --namespace argocd \
+            --set server.service.type=LoadBalancer
+
+      # 🔹 9. Wait for ArgoCD pods
+      - name: Wait for ArgoCD pods
+        run: |
+          kubectl wait --for=condition=Ready pods \
+            --all -n argocd --timeout=300s
+
+      # 🔹 10. Wait for ArgoCD CRDs (IMPORTANT)
+      - name: Wait for ArgoCD CRDs
+        run: |
+          kubectl wait --for condition=Established \
+            crd/applications.argoproj.io \
+            --timeout=120s
+
+      # 🔹 11. Checkout GitOps repo (contains application.yaml)
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.DEPLOYMENT_REPO }}
+          ref: ${{ vars.DEPLOYMENT_REPO_BRANCH }}
+          token: ${{ secrets.GITOPS_TOKEN }}
+          path: gitops-repo
+
+      # 🔹 12. Apply ArgoCD Application
+      - name: Apply ArgoCD Application
+        run: |
+          kubectl apply -f gitops-repo/application.yaml -n argocd
+
+      # 🔹 13. Verify Application
+      - name: Verify ArgoCD Application
+        run: |
+          kubectl get applications -n argocd
+
+      # 🔹 14. Get ArgoCD URL
+      - name: Get ArgoCD URL
+        run: |
+          kubectl get svc argocd-server -n argocd
