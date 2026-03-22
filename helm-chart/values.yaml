@@ -1,8 +1,6 @@
 images:
   repository: "307857433476.dkr.ecr.us-east-1.amazonaws.com"
   # Overrides the image tag whose default is the chart appVersion.
-
-  tag: "7b767125fbfccae77f3a295b0c1771c165e5d7f0"
 serviceAccounts:
   # Specifies whether service accounts should be created.
   create: true
@@ -13,7 +11,7 @@ serviceAccounts:
 
   annotationsOnlyForCartservice: false
 networkPolicies:
-  # Specifies if the NetworkPolicies are created or not. If true, one fine granular NetworkPolicy per app is created.
+  # Specifies if the NetworkPolicies are created or not. sh true, one fine granular NetworkPolicy per app is created.
   create: false
 sidecars:
   # Specifies if the Sidecars are created or not. If true, one fine granular Sidecar per app is created.
@@ -39,6 +37,8 @@ securityContext:
 adService:
   create: true
   name: adservice
+  image:
+    tag: "latest"
   resources:
     requests:
       cpu: 200m
@@ -49,6 +49,8 @@ adService:
 cartService:
   create: true
   name: cartservice
+  image:
+    tag: "latest"
   resources:
     requests:
       cpu: 200m
@@ -59,6 +61,8 @@ cartService:
 checkoutService:
   create: true
   name: checkoutservice
+  image:
+    tag: "latest"
   resources:
     requests:
       cpu: 100m
@@ -69,6 +73,8 @@ checkoutService:
 currencyService:
   create: true
   name: currencyservice
+  image:
+    tag: "latest"
   resources:
     requests:
       cpu: 100m
@@ -79,6 +85,8 @@ currencyService:
 emailService:
   create: true
   name: emailservice
+  image:
+    tag: "latest"
   resources:
     requests:
       cpu: 100m
@@ -89,6 +97,8 @@ emailService:
 frontend:
   create: true
   name: frontend
+  image:
+    tag: "latest"
   externalService: true
   cymbalBranding: false
   # One of: local, gcp, aws, azure, onprem, alibaba. When not set, defaults to "local" unless running in GKE, otherwise auto-sets to gcp.
@@ -114,6 +124,8 @@ frontend:
 loadGenerator:
   create: true
   name: loadgenerator
+  image:
+    tag: "latest"
   checkFrontendInitContainer: true
   resources:
     requests:
@@ -127,6 +139,8 @@ loadGenerator:
 paymentService:
   create: true
   name: paymentservice
+  image:
+    tag: "latest"
   resources:
     requests:
       cpu: 100m
@@ -137,6 +151,8 @@ paymentService:
 productCatalogService:
   create: true
   name: productcatalogservice
+  image:
+    tag: "latest"
   # Specifies an extra latency to any request on productcatalogservice, by default no extra latency.
 
   extraLatency: ""
@@ -150,6 +166,8 @@ productCatalogService:
 recommendationService:
   create: true
   name: recommendationservice
+  image:
+    tag: "latest"
   resources:
     requests:
       cpu: 100m
@@ -160,6 +178,8 @@ recommendationService:
 shippingService:
   create: true
   name: shippingservice
+  image:
+    tag: "latest"
   resources:
     requests:
       cpu: 100m
@@ -189,3 +209,5 @@ cartDatabase:
 shoppingAssistantService:
   create: false
   name: shoppingassistantservice
+  image:
+    tag: "latest"
