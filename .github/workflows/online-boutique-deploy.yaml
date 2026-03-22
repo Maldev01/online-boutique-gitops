@@ -19,7 +19,7 @@ env:
 
 jobs:
   bootstrap-argocd:
-    runs-on: [aws-bastion-runner]
+    runs-on: ubuntu-latest
 
     steps:
       # 🔹 1. Checkout current repo (optional)
