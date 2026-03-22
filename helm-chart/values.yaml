@@ -98,7 +98,7 @@ frontend:
   create: true
   name: frontend
   image:
-    tag: "latest"
+    tag: "fcda7a01170710129ac89d361ce4b686989bd9a6"
   externalService: true
   cymbalBranding: false
   # One of: local, gcp, aws, azure, onprem, alibaba. When not set, defaults to "local" unless running in GKE, otherwise auto-sets to gcp.
