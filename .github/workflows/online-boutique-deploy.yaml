@@ -109,3 +109,4 @@ jobs:
       - name: Deploy Monitoring Stack (ArgoCD)
         run: |
           kubectl apply -f gitops-repo/monitoring.yaml -n argocd    
+          
