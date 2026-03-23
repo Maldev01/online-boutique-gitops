@@ -152,7 +152,7 @@ productCatalogService:
   create: true
   name: productcatalogservice
   image:
-    tag: "latest"
+    tag: "98ab038c67082dcf6277f4febe161c38126e0ac4"
   # Specifies an extra latency to any request on productcatalogservice, by default no extra latency.
 
   extraLatency: ""
