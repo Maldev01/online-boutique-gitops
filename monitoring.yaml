@@ -3,6 +3,7 @@ kind: Application
 metadata:
   name: monitoring-stack
   namespace: argocd
+
 spec:
   project: default
 
@@ -13,13 +14,36 @@ spec:
 
     helm:
       values: |
+        # 🔥 CRITICAL FIX
+        crds:
+          enabled: true
+
+        prometheusOperator:
+          enabled: true
+
+        prometheus:
+          enabled: true
+          service:
+            type: ClusterIP
+
         grafana:
+          enabled: true
           service:
             type: LoadBalancer
 
-        prometheus:
-          service:
-            type: ClusterIP
+          # 🔥 Fix datasource explicitly
+          additionalDataSources:
+            - name: Prometheus
+              type: prometheus
+              url: http://monitoring-stack-kube-prom-prometheus.monitoring:9090
+              access: proxy
+              isDefault: true
+
+          # Optional (easy login)
+          adminPassword: admin123
+
+        alertmanager:
+          enabled: true
 
   destination:
     server: https://kubernetes.default.svc
