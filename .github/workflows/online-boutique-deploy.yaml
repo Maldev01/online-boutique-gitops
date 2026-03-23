@@ -90,6 +90,10 @@ jobs:
           token: ${{ secrets.GITOPS_TOKEN }}
           path: gitops-repo
 
+      - name: Install Prometheus CRDs
+        run: |
+          kubectl apply -f https://github.com/prometheus-operator/prometheus-operator/releases/latest/download/bundle.yaml
+    
       # 🔹 12. Apply ArgoCD Application
       - name: Apply ArgoCD Application
         run: |
@@ -109,4 +113,3 @@ jobs:
       - name: Deploy Monitoring Stack (ArgoCD)
         run: |
           kubectl apply -f gitops-repo/monitoring.yaml -n argocd    
-          
