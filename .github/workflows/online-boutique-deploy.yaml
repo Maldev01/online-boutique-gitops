@@ -1,62 +1,57 @@
-name: Deploy App
+name: Deploy App (GitOps)
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      service_name:
-        required: false
-        type: string
-permissions:
-  id-token: write
-  contents: read
 
 env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_REGION: ${{secrets.AWS_REGION}}
   CLUSTER_NAME: private-eks-cluster
 
 jobs:
-  bootstrap-argocd:
-    runs-on: ubuntu-latest
+  deploy:
+    name: Deploy via Bastion Runner
+    runs-on: [Linux]
 
     steps:
-      # 🔹 1. Checkout current repo (optional)
+      # 🔹 1. Checkout main repo (optional)
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 🔹 2. Configure AWS credentials (OIDC)
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+      # 🔹 2. Verify IAM role (EC2 role will be used automatically)
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity
 
-      # 🔹 3. Configure kubeconfig for EKS
-      - name: Update kubeconfig
+      # 🔹 3. Update kubeconfig for private EKS
+      - name: Configure kubeconfig
         run: |
           aws eks update-kubeconfig \
             --region $AWS_REGION \
             --name $CLUSTER_NAME
 
-      # 🔹 4. Install kubectl
-      - name: Install kubectl
+      # 🔹 4. Install kubectl (only if not pre-installed)
+      - name: Ensure kubectl installed
         run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
+          if ! command -v kubectl &> /dev/null; then
+            curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x kubectl
+            sudo mv kubectl /usr/local/bin/
+          fi
 
-      # 🔹 5. Install Helm
-      - name: Install Helm
+      # 🔹 5. Install Helm (only if not pre-installed)
+      - name: Ensure Helm installed
         run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          if ! command -v helm &> /dev/null; then
+            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          fi
 
-      # 🔹 6. Create namespaces
+      # 🔹 6. Create required namespaces
       - name: Create namespaces
         run: |
-          kubectl create namespace argocd || true
-          kubectl create namespace online-boutique || true
+          kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace online-boutique --dry-run=client -o yaml | kubectl apply -f -
 
       # 🔹 7. Add ArgoCD Helm repo
       - name: Add Helm repo
@@ -77,14 +72,14 @@ jobs:
           kubectl wait --for=condition=Ready pods \
             --all -n argocd --timeout=300s
 
-      # 🔹 10. Wait for ArgoCD CRDs (IMPORTANT)
-      - name: Wait for ArgoCD CRDs
+      # 🔹 10. Wait for ArgoCD CRDs
+      - name: Wait for CRDs
         run: |
           kubectl wait --for condition=Established \
             crd/applications.argoproj.io \
             --timeout=120s
 
-      # 🔹 11. Checkout GitOps repo (contains application.yaml)
+      # 🔹 11. Checkout GitOps repo
       - name: Checkout GitOps repo
         uses: actions/checkout@v4
         with:
