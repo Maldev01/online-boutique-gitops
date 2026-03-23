@@ -179,7 +179,7 @@ shippingService:
   create: true
   name: shippingservice
   image:
-    tag: "latest"
+    tag: "21bb8b00557cfad49a401dc5c38844aae0cfe8fd"
   resources:
     requests:
       cpu: 100m
