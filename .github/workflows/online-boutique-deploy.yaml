@@ -69,7 +69,8 @@ jobs:
       # 🔹 9. Wait for ArgoCD pods
       - name: Wait for ArgoCD pods
         run: |
-          kubectl wait --for=available deployment --all -n argocd --timeout=80s
+           kubectl get deploy -n argocd
+           kubectl rollout status deployment --all -n argocd --timeout=80s
 
       # 🔹 10. Wait for ArgoCD CRDs
       - name: Wait for CRDs
