@@ -93,9 +93,11 @@ jobs:
       - name: Install Prometheus CRDs
         run: |
           if ! kubectl get crd prometheuses.monitoring.coreos.com >/dev/null 2>&1; then
-          kubectl apply --server-side --force-conflicts -f gitops-repo/monitoring/crds/
+          echo "Installing Prometheus CRD..."
+          kubectl apply --server-side --force-conflicts \
+          -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml
           else
-          echo "Prometheus CRDs already exist, skipping"
+          echo "CRD already exists, skipping"
           fi
     
       # 🔹 12. Apply ArgoCD Application
