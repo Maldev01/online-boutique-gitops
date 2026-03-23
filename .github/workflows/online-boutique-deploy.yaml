@@ -92,7 +92,11 @@ jobs:
 
       - name: Install Prometheus CRDs
         run: |
-          kubectl apply -f https://github.com/prometheus-operator/prometheus-operator/releases/latest/download/bundle.yaml
+          if ! kubectl get crd prometheuses.monitoring.coreos.com >/dev/null 2>&1; then
+          kubectl apply --server-side --force-conflicts -f gitops-repo/monitoring/crds/
+          else
+          echo "Prometheus CRDs already exist, skipping"
+          fi
     
       # 🔹 12. Apply ArgoCD Application
       - name: Apply ArgoCD Application
