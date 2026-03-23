@@ -104,3 +104,8 @@ jobs:
       - name: Get ArgoCD URL
         run: |
           kubectl get svc argocd-server -n argocd
+
+      # monitoring step
+      - name: Deploy Monitoring Stack (ArgoCD)
+        run: |
+          kubectl apply -f gitops-repo/monitoring.yaml -n argocd    
