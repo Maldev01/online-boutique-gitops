@@ -61,7 +61,7 @@ jobs:
           helm repo update
           helm upgrade --install argocd argo/argo-cd \
             --namespace argocd \
-            --set server.service.type=ClusterIP
+            --set server.service.type=LoadBalancer
 
       # 🔹 8. Wait for ArgoCD pods
       - name: Wait for ArgoCD pods
@@ -110,4 +110,3 @@ jobs:
       - name: Get Monitoring Services
         run: |
           kubectl get svc -n monitoring
-          
