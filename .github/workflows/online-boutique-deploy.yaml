@@ -1,4 +1,4 @@
-name: Deploy Full GitOps Stack (ArgoCD + Monitoring)
+name: Deploy Full GitOps Stack (ArgoCD + Monitoring + App)
 
 on:
   push:
@@ -13,10 +13,10 @@ env:
 jobs:
   deploy:
     name: Deploy via Bastion Runner
-    runs-on: [aws-ssm-runner]
+    runs-on: [Linux]
 
     steps:
-      # 🔹 1. Checkout repo
+      # 🔹 1. Checkout main repo (optional)
       - name: Checkout repo
         uses: actions/checkout@v4
 
@@ -54,24 +54,25 @@ jobs:
           kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
           kubectl create namespace online-boutique --dry-run=client -o yaml | kubectl apply -f -
 
-      # 🔹 7. Install ArgoCD
+      # 🔹 7. Install / Upgrade ArgoCD
       - name: Install ArgoCD
         run: |
           helm repo add argo https://argoproj.github.io/argo-helm
           helm repo update
           helm upgrade --install argocd argo/argo-cd \
             --namespace argocd \
-            --set server.service.type=LoadBalancer
+            --set server.service.type=ClusterIP
 
-      # 🔹 8. Wait for ArgoCD
+      # 🔹 8. Wait for ArgoCD pods
       - name: Wait for ArgoCD pods
         run: |
           for deploy in $(kubectl get deploy -n argocd -o jsonpath='{.items[*].metadata.name}'); do
+            echo "Waiting for $deploy"
             kubectl rollout status deployment/$deploy -n argocd --timeout=120s
           done
 
-      # 🔹 9. Wait for CRDs
-      - name: Wait for CRDs
+      # 🔹 9. Wait for ArgoCD CRDs
+      - name: Wait for ArgoCD CRDs
         run: |
           kubectl wait --for condition=Established \
             crd/applications.argoproj.io \
@@ -86,30 +87,26 @@ jobs:
           token: ${{ secrets.GITOPS_TOKEN }}
           path: gitops-repo
 
-
-      - name: Apply ArgoCD Apps (All)
+      # 🔹 11. Apply ALL ArgoCD Applications (GitOps way)
+      - name: Apply ArgoCD Applications
         run: |
           kubectl apply -f gitops-repo/crds.yaml -n argocd
           kubectl apply -f gitops-repo/prometheus.yaml -n argocd
           kubectl apply -f gitops-repo/grafana.yaml -n argocd
+          kubectl apply -f gitops-repo/servicemonitor.yaml -n argocd
           kubectl apply -f gitops-repo/application.yaml -n argocd
-          
-      # 🔹 14. Apply ServiceMonitor
-      - name: Apply ServiceMonitor
-        run: |
-          kubectl apply -f gitops-repo/argocd-servicemonitor.yaml
 
-      # 🔹 15. Verify Applications
-      - name: Verify ArgoCD Apps
+      # 🔹 12. Verify ArgoCD Applications
+      - name: Verify ArgoCD Applications
         run: |
           kubectl get applications -n argocd
 
-      # 🔹 16. Get ArgoCD Service
+      # 🔹 13. Get ArgoCD Service
       - name: Get ArgoCD Service
         run: |
           kubectl get svc -n argocd
-      
-      # 🔹 17. Get Monitoring Services
+
+      # 🔹 14. Get Monitoring Services
       - name: Get Monitoring Services
         run: |
-          kubectl get svc -n monitoring    
+          kubectl get svc -n monitoring

@@ -1,22 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  annotations:
-    argocd.argoproj.io/sync-wave: "3"
-  name: online-boutique
+  name: argocd-servicemonitor
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+
 spec:
   project: default
+
   source:
-    repoURL: 'https://github.com/Maldev01/online-boutique-gitops'
+    repoURL: 'https://github.com/Maldev01/online-boutique-gitop'
     targetRevision: main
-    path: 'helm-chart'
-    helm:
-      valueFiles:
-        - values.yaml
+    path: .
+
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: online-boutique
+    namespace: monitoring
+
   syncPolicy:
     automated:
       prune: true
