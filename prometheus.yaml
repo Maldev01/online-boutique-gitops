@@ -15,6 +15,9 @@ spec:
     targetRevision: 56.6.2
     helm:
       values: |
+        crds:
+          enabled: false
+        
         grafana:
           enabled: false
 
