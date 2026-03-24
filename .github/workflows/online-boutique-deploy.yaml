@@ -86,24 +86,42 @@ jobs:
           token: ${{ secrets.GITOPS_TOKEN }}
           path: gitops-repo
 
-      # 🔹 11. Apply ArgoCD Applications (ALL)
+
+      # 🔹 11. Apply Prometheus CRDs FIRST
+      - name: Apply Prometheus CRDs
+        run: |
+          kubectl apply -f gitops-repo/crds.yaml -n argocd
+
+      # 🔹 12. Wait for Prometheus CRDs to be ready
+      - name: Wait for Prometheus CRDs
+        run: |
+          kubectl wait --for condition=Established crd/prometheuses.monitoring.coreos.com --timeout=120s
+          kubectl wait --for condition=Established crd/servicemonitors.monitoring.coreos.com --timeout=120s
+          kubectl wait --for condition=Established crd/alertmanagers.monitoring.coreos.com --timeout=120s   
+
+      # 🔹 13. Apply ArgoCD Applications (ALL)
       - name: Apply All ArgoCD Apps
         run: |
           kubectl apply -f gitops-repo/prometheus.yaml -n argocd
           kubectl apply -f gitops-repo/grafana.yaml -n argocd
           kubectl apply -f gitops-repo/application.yaml -n argocd
 
-      # 🔹 12. Apply ServiceMonitor
+      # 🔹 14. Apply ServiceMonitor
       - name: Apply ServiceMonitor
         run: |
           kubectl apply -f gitops-repo/argocd-servicemonitor.yaml
 
-      # 🔹 13. Verify Applications
+      # 🔹 15. Verify Applications
       - name: Verify ArgoCD Apps
         run: |
           kubectl get applications -n argocd
 
-      # 🔹 14. Get ArgoCD Service
+      # 🔹 16. Get ArgoCD Service
       - name: Get ArgoCD Service
         run: |
           kubectl get svc -n argocd
+      
+      # 🔹 17. Get Monitoring Services
+      - name: Get Monitoring Services
+        run: |
+          kubectl get svc -n monitoring    
