@@ -13,7 +13,7 @@ env:
 jobs:
   deploy:
     name: Deploy via Bastion Runner
-    runs-on: [Linux]
+    runs-on: [aws-ssm-runner]
 
     steps:
       # 🔹 1. Checkout main repo (optional)
@@ -110,3 +110,4 @@ jobs:
       - name: Get Monitoring Services
         run: |
           kubectl get svc -n monitoring
+          
