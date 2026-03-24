@@ -31,6 +31,8 @@ spec:
 
         alertmanager:
           enabled: false
+        prometheus-node-exporter:
+          enabled: false  
 
   destination:
     server: https://kubernetes.default.svc
