@@ -18,9 +18,6 @@ spec:
         grafana:
           enabled: false
 
-        crds:
-          enabled: false  
-
         prometheus:
           enabled: true
           service:

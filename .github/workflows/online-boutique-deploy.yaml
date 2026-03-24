@@ -90,7 +90,6 @@ jobs:
       # 🔹 11. Apply ALL ArgoCD Applications (GitOps way)
       - name: Apply ArgoCD Applications
         run: |
-          kubectl apply -f gitops-repo/crds.yaml -n argocd
           kubectl apply -f gitops-repo/prometheus.yaml -n argocd
           kubectl apply -f gitops-repo/grafana.yaml -n argocd
           kubectl apply -f gitops-repo/servicemonitor.yaml -n argocd
