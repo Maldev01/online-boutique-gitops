@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: monitoring-stack
+  name: grafana
   namespace: argocd
 
 spec:
@@ -11,39 +11,24 @@ spec:
     repoURL: https://prometheus-community.github.io/helm-charts
     chart: kube-prometheus-stack
     targetRevision: 56.6.2
-
     helm:
       values: |
-        # 🔥 CRITICAL FIX
-        crds:
-          enabled: true
-
-        prometheusOperator:
-          enabled: true
-
         prometheus:
-          enabled: true
-          service:
-            type: ClusterIP
-
+          enabled: false 
         grafana:
           enabled: true
           service:
             type: LoadBalancer
 
-          # 🔥 Fix datasource explicitly
           additionalDataSources:
             - name: Prometheus
               type: prometheus
-              url: http://monitoring-stack-kube-prom-prometheus.monitoring:9090
+              url: http://prometheus-kube-prometheus-prometheus.monitoring:9090
               access: proxy
               isDefault: true
 
-          # Optional (easy login)
-          adminPassword: admin123
-
         alertmanager:
-          enabled: true
+          enabled: false
 
   destination:
     server: https://kubernetes.default.svc
@@ -53,6 +38,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-
-    syncOptions:
-      - CreateNamespace=true
