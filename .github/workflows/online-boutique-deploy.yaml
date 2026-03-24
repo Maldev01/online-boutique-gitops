@@ -109,4 +109,3 @@ jobs:
       - name: Get Monitoring Services
         run: |
           kubectl get svc -n monitoring
-          
